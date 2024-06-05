@@ -10,4 +10,5 @@ class Layer:
     
     def forward(self, inputs) -> None:
         result = np.dot(inputs, self.weights) + self.biases
+        self.unactivatedResult = result
         self.output = self.activation.calculate(result)
