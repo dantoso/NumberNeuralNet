@@ -9,7 +9,7 @@ class Activation:
 class ReLU(Activation):
     def calculate(self, inputs):
         return np.maximum(0, inputs)
-    def deriv(x):
+    def deriv(self, x):
         return x > 0
 
 class Softmax(Activation):
@@ -17,5 +17,5 @@ class Softmax(Activation):
         expValues = np.exp(inputs - np.max(inputs, axis=1, keepdims=True))
         normValues = expValues / np.sum(expValues)
         return normValues
-    def deriv(x):
+    def deriv(self, x):
         return 1

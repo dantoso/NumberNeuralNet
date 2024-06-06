@@ -1,30 +1,26 @@
-from Layer import *
-from Activation import *
+from Network import *
 import numpy as np
 import random as rand
-import tensorflow as tf
+import numpy as np
+from MNISTDataLoader import *
 
-mnist = tf.keras.datasets.mnist
-(trainImages, trainLabels), (testImages, testLabels) = mnist.load_data()
+loader = MnistDataloader("MNISTData/train/images", "MNISTData/train/labels", "MNISTData/test/images", "MNISTData/test/labels")
+(x_train, y_train),(x_test, y_test) = loader.load_data()
 
-trainImages, testImages = trainImages / 255.0, testImages / 255.0
+x_train = np.array(x_train)
+x_train = x_train.reshape(x_train.shape[0], -1)
+y_train = np.array(y_train)
+x_test = np.array(x_test)
+x_test = x_test.reshape(x_test.shape[0], -1)
+y_test = np.array(y_test)
 
-relu = ReLU()
-softmax = Softmax()
+x_train, x_test = x_train / 255.0, x_test / 255.0
 
-layer1 = Layer(4, 4, relu)
-layer2 = Layer(4, 3, softmax)
-list = []
+# Display the shape of the training and testing sets
+print("Training set shape:", x_train.shape)
+print("Training labels shape:", y_train.shape)
+print("Testing set shape:", x_test.shape)
+print("Testing labels shape:", y_test.shape)
 
-for i in range(4):
-    integer = rand.random()
-    list.append(integer)
-
-input = np.array(list)
-
-layer1.forward(input)
-print(layer1.output)
-print(layer1.output.shape)
-
-layer2.forward(layer1.output)
-print(layer2.output)
+model = Network(28*28)
+model.fit(x_train, y_train)

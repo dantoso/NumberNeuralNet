@@ -6,14 +6,14 @@ class Network:
     def __init__(self, pixelNum: int):
         self.hiddenActivation = ReLU()
         self.outputActivation = Softmax()
-        self.inputSize = pixelNum*pixelNum
+        self.inputSize = pixelNum
         self.hiddenSize = 16
         self.hiddenLayers = []
 
         self.hiddenLayers.append(Layer(self.inputSize, self.hiddenSize, self.hiddenActivation))
         self.hiddenLayers.append(Layer(self.hiddenSize, self.hiddenSize, self.hiddenActivation))
 
-        self.outputLayer = Layer(self.hiddenSize, 10)
+        self.outputLayer = Layer(self.hiddenSize, 10, self.outputActivation)
     
     def run(self, input):
         self.input = input
@@ -29,28 +29,35 @@ class Network:
         self.accuracy = np.mean(self.predictions == targets)
         return self.accuracy
     
-    def fit(self, trainData, targets):
-        self.run(trainData)
-        oneHot = self.oneHotEncode(targets)
-        dParams = self.backProp(oneHot)
-        self.updateParams(dParams, 0.1)
+    def fit(self, trainData, targets, iterations=50):
+        for i in range(iterations):
+            batch = trainData[range(64*i, 64*(i+1))]
+            targetBatch = targets[range(64*i, 64*(i+1))]
+            self.run(batch)
+            self.accuracy = np.mean(self.predictions == targetBatch)
+            print("Iteration: ", i)
+            print("Accuracy: ", self.accuracy)
+            oneHot = self.oneHotEncode(targetBatch)
+            dParams = self.backProp(oneHot)
+            self.updateParams(dParams, 0.1)
     
     def evaluate(self, input):
         self.run(input)
         return self.outputLayer.output
     
-    def oneHotEncode(targets):
-        oneHot = np.zeros((10, len(targets)))
+    def oneHotEncode(self, targets):
+        oneHot = np.zeros((len(targets), 10))
         for i in range(len(targets)):
             oneHot[i, targets[i]] = 1
         return oneHot
     
     def updateParams(self, dParams, alpha):
         for i in range(len(self.hiddenLayers)):
+            index = -1-i
             layer = self.hiddenLayers[i]
-            modifiers = dParams[i]
+            modifiers = dParams[index]
             self.updateLayer(layer, modifiers, alpha)
-        self.updateLayer(self.outputLayer, dParams[-1], alpha)
+        self.updateLayer(self.outputLayer, dParams[0], alpha)
     
     def updateLayer(self, layer, modifiers, alpha):
         layer.weights = layer.weights - alpha * modifiers[0]
@@ -58,30 +65,29 @@ class Network:
 
     def backProp(self, oneHot):
         numSamples = len(oneHot)
-        dParams = np.array([])
+        dParams = []
         nextLayer = self.outputLayer
         dZ = self.outputLayer.output - oneHot # m x 10
+        
+        # Backpropagation through hidden layers
         for i in range(len(self.hiddenLayers)):
-            index = -1-i
+            index = -1 - i
             layer = self.hiddenLayers[index]
 
-            if i != 0:
-                # m x 16 = m x 10 * transpose(m x 10) * deriv(m x 16)
-                dZ = np.dot(dZ, np.transpose(nextLayer.weights)) * self.hiddenActivation.deriv(layer.unactivatedResult)
-                nextLayer = layer      
-            # 16 x 10 = transpose(m x 16) * m x 10
-            dW = np.dot(np.transpose(layer.output), dZ) * (1/numSamples)
+            # Compute gradients for weights and biases
+            dW = np.dot(layer.output.T, dZ) / numSamples
+            dB = np.sum(dZ, axis=0, keepdims=True) / numSamples
 
-            # 1 x 10
-            dB = np.sum(dZ, 1) * (1/numSamples)           
+            # Save gradients
+            dParams.append([dW, dB])
 
-            # save dParams
-            dParams = np.append(dParams, [dW, dB])
-
-        layer = self.hiddenLayers[0]
-        dZ = np.dot(dZ, np.transpose(nextLayer.weights)) * self.hiddenActivation.deriv(layer.unactivatedResult)
-        dW = np.dot(np.transpose(self.input), dZ) * (1/numSamples)
-        dB = np.sum(dZ, 1) * (1/numSamples)           
-        dParams = np.append(dParams, [dW, dB])
+            # Compute gradients for next layer
+            dZ = np.dot(dZ, nextLayer.weights.T) * self.hiddenActivation.deriv(layer.unactivatedResult)
+            nextLayer = layer
+        
+        # Backpropagation through input layer
+        dW = np.dot(self.input.T, dZ) / numSamples
+        dB = np.sum(dZ, axis=0, keepdims=True) / numSamples
+        dParams.append([dW, dB])
 
         return dParams
