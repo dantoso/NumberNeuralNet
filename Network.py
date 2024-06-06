@@ -21,7 +21,6 @@ class Network:
 
         for layer in self.hiddenLayers:
             layer.forward(forwarded)
-            # layer.output -= np.max(layer.output, axis=1, keepdims=True)
             forwarded = layer.output
             
         self.outputLayer.forward(forwarded)
