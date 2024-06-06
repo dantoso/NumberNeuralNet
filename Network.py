@@ -32,10 +32,8 @@ class Network:
     def fit(self, trainData, targets):
         self.run(trainData)
         oneHot = self.oneHotEncode(targets)
-        self.backProp(oneHot)
-        
-        # call backprop
-        # call optimizer
+        dParams = self.backProp(oneHot)
+        self.updateParams(dParams, 0.1)
     
     def evaluate(self, input):
         self.run(input)
@@ -47,6 +45,17 @@ class Network:
             oneHot[i, targets[i]] = 1
         return oneHot
     
+    def updateParams(self, dParams, alpha):
+        for i in range(len(self.hiddenLayers)):
+            layer = self.hiddenLayers[i]
+            modifiers = dParams[i]
+            self.updateLayer(layer, modifiers, alpha)
+        self.updateLayer(self.outputLayer, dParams[-1], alpha)
+    
+    def updateLayer(self, layer, modifiers, alpha):
+        layer.weights = layer.weights - alpha * modifiers[0]
+        layer.biases = layer.biases - alpha * modifiers[1]
+
     def backProp(self, oneHot):
         numSamples = len(oneHot)
         dParams = np.array([])
