@@ -10,12 +10,11 @@ class ReLU(Activation):
     def calculate(self, inputs):
         return np.maximum(0, inputs)
     def deriv(self, x):
-        return x > 0
+        return np.where(x > 0, 1, 0)
 
 class Softmax(Activation):
     def calculate(self, inputs):
-        expValues = np.exp(inputs - np.max(inputs, axis=1, keepdims=True))
-        normValues = expValues / np.sum(expValues)
-        return normValues
+        exp = np.exp(inputs - np.max(inputs, axis=1, keepdims=True))  # Subtract the maximum value for numerical stability
+        return exp / np.sum(exp, axis=1, keepdims=True)
     def deriv(self, x):
         return 1

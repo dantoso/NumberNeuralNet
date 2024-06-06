@@ -17,10 +17,10 @@ y_test = np.array(y_test)
 x_train, x_test = x_train / 255.0, x_test / 255.0
 
 # Display the shape of the training and testing sets
-print("Training set shape:", x_train.shape)
-print("Training labels shape:", y_train.shape)
-print("Testing set shape:", x_test.shape)
-print("Testing labels shape:", y_test.shape)
+# print("Training set shape:", x_train.shape)
+# print("Training labels shape:", y_train.shape)
+# print("Testing set shape:", x_test.shape)
+# print("Testing labels shape:", y_test.shape)
 
 model = Network(28*28)
 model.fit(x_train, y_train)

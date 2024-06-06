@@ -18,9 +18,12 @@ class Network:
     def run(self, input):
         self.input = input
         forwarded = input
+
         for layer in self.hiddenLayers:
             layer.forward(forwarded)
+            # layer.output -= np.max(layer.output, axis=1, keepdims=True)
             forwarded = layer.output
+            
         self.outputLayer.forward(forwarded)
         self.predictions = np.argmax(self.outputLayer.output, axis=1)
 
@@ -29,17 +32,23 @@ class Network:
         self.accuracy = np.mean(self.predictions == targets)
         return self.accuracy
     
-    def fit(self, trainData, targets, iterations=50):
+    def fit(self, trainData, targets, iterations=1000):
+        np.random.shuffle(trainData)
+
         for i in range(iterations):
-            batch = trainData[range(64*i, 64*(i+1))]
-            targetBatch = targets[range(64*i, 64*(i+1))]
+            batch = trainData[range(32*i, 32*(i+1))]
+            targetBatch = targets[range(32*i, 32*(i+1))]
             self.run(batch)
             self.accuracy = np.mean(self.predictions == targetBatch)
-            print("Iteration: ", i)
-            print("Accuracy: ", self.accuracy)
+            if i % 10 == 0:
+                print(" ---------------------------- Iteration: ", i, " ---------------------------- ")
+                print("first 3 of output layer = ", self.outputLayer.output[:3])
+                print("Loss: ", self.getLoss(targetBatch))
+                print("Accuracy: ", self.accuracy)
+
             oneHot = self.oneHotEncode(targetBatch)
             dParams = self.backProp(oneHot)
-            self.updateParams(dParams, 0.1)
+            self.updateParams(dParams, 0.01)
     
     def evaluate(self, input):
         self.run(input)
@@ -91,3 +100,13 @@ class Network:
         dParams.append([dW, dB])
 
         return dParams
+    
+    def getLoss(self, targets):
+        clippedVal = np.clip(self.outputLayer.output, 1e-7, 1-1e-7)
+        numSamples = len(clippedVal)
+
+        relevantConfidences = clippedVal[range(numSamples), targets]
+
+        loss = -np.log(relevantConfidences)
+
+        return np.mean(loss)
