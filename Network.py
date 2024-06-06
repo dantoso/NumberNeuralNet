@@ -32,23 +32,19 @@ class Network:
         self.accuracy = np.mean(self.predictions == targets)
         return self.accuracy
     
-    def fit(self, trainData, targets, iterations=1000):
-        np.random.shuffle(trainData)
-
+    def fit(self, trainData, targets, iterations=1000, alpha=0.1):
         for i in range(iterations):
-            batch = trainData[range(32*i, 32*(i+1))]
-            targetBatch = targets[range(32*i, 32*(i+1))]
-            self.run(batch)
-            self.accuracy = np.mean(self.predictions == targetBatch)
+            self.run(trainData)
+            self.accuracy = np.mean(self.predictions == targets)
             if i % 10 == 0:
                 print(" ---------------------------- Iteration: ", i, " ---------------------------- ")
                 print("first 3 of output layer = ", self.outputLayer.output[:3])
-                print("Loss: ", self.getLoss(targetBatch))
+                print("Loss: ", self.getLoss(targets))
                 print("Accuracy: ", self.accuracy)
 
-            oneHot = self.oneHotEncode(targetBatch)
+            oneHot = self.oneHotEncode(targets)
             dParams = self.backProp(oneHot)
-            self.updateParams(dParams, 0.01)
+            self.updateParams(dParams, alpha)
     
     def evaluate(self, input):
         self.run(input)

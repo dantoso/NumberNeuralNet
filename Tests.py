@@ -22,5 +22,8 @@ x_train, x_test = x_train / 255.0, x_test / 255.0
 # print("Testing set shape:", x_test.shape)
 # print("Testing labels shape:", y_test.shape)
 
+trainData = x_train[:256]
+targets = y_train[:256]
+
 model = Network(28*28)
-model.fit(x_train, y_train)
+model.fit(trainData, targets, alpha=0.1)
