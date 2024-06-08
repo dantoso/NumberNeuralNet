@@ -47,7 +47,7 @@ class Network:
     
     def evaluate(self, input):
         self.run(input)
-        return self.outputLayer.output
+        return self.predictions
     
     def oneHotEncode(self, targets):
         oneHot = np.zeros((len(targets), 10))

@@ -22,9 +22,24 @@ trainBatches = np.split(x_train, split)
 targetBatches = np.split(y_train, split)
 
 for i in range(split):
-    model.fit(trainBatches[i], targetBatches[i], iterations=100, alpha=0.01)
+    print("Batch: ", i)
+    model.fit(trainBatches[i], targetBatches[i], iterations=50, alpha=0.01)
 
 testData = x_test
 testTargets = y_test
 accuracy = model.test(testData, testTargets)
+
+predictions = []
+for i in range(100):
+    prediction = model.evaluate(testData[i])
+    predictions.append(prediction)
+    print("Prediction: ", prediction, " -> ", testTargets[i])
+
 print("Final accuracy: ", accuracy)
+
+# for i in range(len(predictions)):
+#     image = testData[i].reshape((28, 28)) * 255
+#     plt.gray()
+#     plt.imshow(image, interpolation='nearest')
+#     plt.title("Prediction: " + predictions[i])
+#     plt.show()
