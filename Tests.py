@@ -1,4 +1,5 @@
 from Network import *
+from NetGrapher import *
 import numpy as np
 from MNISTDataLoader import *
 from matplotlib import pyplot as plt
@@ -31,19 +32,4 @@ testData = x_test
 testTargets = y_test
 accuracy = model.test(testData, testTargets)
 
-predictions = []
-for i in range(100):
-    prediction = model.evaluate(testData[i])
-    predictions.append(prediction)
-    print("Prediction: ", prediction, " -> ", testTargets[i])
-
 print("Final accuracy: ", accuracy)
-
-for i in range(len(predictions)):
-    image = testData[i].reshape((28, 28)) * 255
-    plt.subplot(10, 10, i+1)
-    plt.imshow(image, interpolation='nearest')
-    plt.title(str(predictions[i]))
-    plt.axis('off')
-plt.subplots_adjust(wspace=5, hspace=5)
-plt.show()

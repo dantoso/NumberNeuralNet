@@ -37,7 +37,6 @@ class Network:
             self.accuracy = np.mean(self.predictions == targets)
             if i % 10 == 0:
                 print(" ---------------------------- Iteration: ", i, " ---------------------------- ")
-                print("first 3 of output layer = ", self.outputLayer.output[:3])
                 print("Loss: ", self.getLoss(targets))
                 print("Accuracy: ", self.accuracy)
 
