@@ -33,3 +33,6 @@ testTargets = y_test
 accuracy = model.test(testData, testTargets)
 
 print("Final accuracy: ", accuracy)
+
+grapher = NetGrapher()
+grapher.showBarChart(model.predictions, testTargets)
