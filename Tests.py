@@ -8,9 +8,11 @@ loader = MnistDataloader("MNISTData/train/images", "MNISTData/train/labels", "MN
 
 x_train = np.array(x_train)
 x_train = x_train.reshape(x_train.shape[0], -1)
-y_train = np.array(y_train)
+
 x_test = np.array(x_test)
 x_test = x_test.reshape(x_test.shape[0], -1)
+
+y_train = np.array(y_train)
 y_test = np.array(y_test)
 
 x_train, x_test = x_train / 255.0, x_test / 255.0
@@ -37,9 +39,11 @@ for i in range(100):
 
 print("Final accuracy: ", accuracy)
 
-# for i in range(len(predictions)):
-#     image = testData[i].reshape((28, 28)) * 255
-#     plt.gray()
-#     plt.imshow(image, interpolation='nearest')
-#     plt.title("Prediction: " + predictions[i])
-#     plt.show()
+for i in range(len(predictions)):
+    image = testData[i].reshape((28, 28)) * 255
+    plt.subplot(10, 10, i+1)
+    plt.imshow(image, interpolation='nearest')
+    plt.title(str(predictions[i]))
+    plt.axis('off')
+plt.subplots_adjust(wspace=5, hspace=5)
+plt.show()
